@@ -3,18 +3,11 @@ from pathlib import Path
 
 import click
 from kedro.framework.context import load_context
+from kedro.framework.startup import _get_project_metadata, _is_project
 
 from kedro_mlflow.framework.cli.cli_utils import write_jinja_template
 from kedro_mlflow.framework.context import get_mlflow_config
-from kedro_mlflow.utils import _is_kedro_project
-
-try:
-    from kedro.framework.context import get_static_project_data
-except ImportError:  # pragma: no cover
-    from kedro_mlflow.utils import (
-        _get_project_globals as get_static_project_data,  # pragma: no cover
-    )
-
+from kedro_mlflow.utils import _already_updated
 
 TEMPLATE_FOLDER_PATH = Path(__file__).parent.parent.parent / "template" / "project"
 
@@ -24,7 +17,7 @@ class KedroClickGroup(click.Group):
         self.commands = {}
 
         # add commands on the fly based on conditions
-        if _is_kedro_project():
+        if _is_project():
             self.add_command(init)
             self.add_command(ui)
             # self.add_command(run) # TODO : IMPLEMENT THIS FUNCTION
@@ -65,7 +58,7 @@ def mlflow_commands():
     "-f",
     is_flag=True,
     default=False,
-    help="Update the template without any checks. If a 'mlflow.yml' already eists, it will be overridden.",
+    help="Update the template without any checks.",
 )
 @click.option(
     "--silent",
@@ -76,20 +69,29 @@ def mlflow_commands():
 )
 def init(env, force, silent):
     """Updates the template of a kedro project.
-    Running this command is mandatory to use kedro-mlflow. This
-    adds a configuration file used for run parametrization when
-    calling "kedro run" command.
+    Running this command is mandatory to use kedro-mlflow.
+    This adds "conf/base/mlflow.yml": This is a configuration file
+    used for run parametrization when calling "kedro run" command.
+    See INSERT_DOC_URL for further details.
     """
 
     # get constants
     mlflow_yml = "mlflow.yml"
     project_path = Path().cwd()
-    project_globals = get_static_project_data(project_path)
+    project_metadata = _get_project_metadata(project_path)
     context = load_context(project_path)
     mlflow_yml_path = project_path / context.CONF_ROOT / env / mlflow_yml
 
-    # mlflow.yml is just a static file
-    if mlflow_yml_path.is_file() and not force:
+    # mlflow.yml is just a static file,
+    # but the name of the experiment is set to be the same as the project
+    mlflow_yml = "mlflow.yml"
+    write_jinja_template(
+        src=TEMPLATE_FOLDER_PATH / mlflow_yml,
+        is_cookiecutter=False,
+        dst=project_path / conf_root / "base" / mlflow_yml,
+        python_package=project_metadata.package_name,
+    )
+    if not silent:
         click.secho(
             click.style(
                 f"A 'mlflow.yml' already exists at '{mlflow_yml_path}' You can use the ``--force`` option to override it.",
