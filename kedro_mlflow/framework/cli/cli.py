@@ -7,7 +7,6 @@ from kedro.framework.startup import _get_project_metadata, _is_project
 
 from kedro_mlflow.framework.cli.cli_utils import write_jinja_template
 from kedro_mlflow.framework.context import get_mlflow_config
-from kedro_mlflow.utils import _already_updated
 
 TEMPLATE_FOLDER_PATH = Path(__file__).parent.parent.parent / "template" / "project"
 
@@ -88,7 +87,7 @@ def init(env, force, silent):
     write_jinja_template(
         src=TEMPLATE_FOLDER_PATH / mlflow_yml,
         is_cookiecutter=False,
-        dst=project_path / conf_root / "base" / mlflow_yml,
+        dst=project_path / context.CONF_ROOT / "base" / mlflow_yml,
         python_package=project_metadata.package_name,
     )
     if not silent:
@@ -105,7 +104,7 @@ def init(env, force, silent):
                 src=TEMPLATE_FOLDER_PATH / mlflow_yml,
                 is_cookiecutter=False,
                 dst=mlflow_yml_path,
-                python_package=project_globals["package_name"],
+                python_package=project_metadata.package_name,
             )
         except FileNotFoundError:
             click.secho(
