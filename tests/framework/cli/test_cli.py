@@ -173,6 +173,7 @@ def test_cli_init_with_wrong_env(monkeypatch, tmp_path, kedro_project, env):
 # TODO : This is a fake test. add a test to see if ui is properly up
 # I tried mimicking mlflow_cli with mock but did not achieve desired result
 # other solution is to use pytest-xprocess
+# TODO: create an initlaized_kedro_project fixture with a global scope
 def test_ui_is_up(monkeypatch, mocker, tmp_path, kedro_project):
     project_path = tmp_path / "fake-project"
     monkeypatch.chdir(project_path)

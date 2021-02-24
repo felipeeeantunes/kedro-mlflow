@@ -2,7 +2,8 @@ import subprocess
 from pathlib import Path
 
 import click
-from kedro.framework.context import load_context
+from kedro.framework.cli.utils import _add_src_to_path
+from kedro.framework.session import KedroSession
 from kedro.framework.startup import _get_project_metadata, _is_project
 
 from kedro_mlflow.framework.cli.cli_utils import write_jinja_template
@@ -16,7 +17,7 @@ class KedroClickGroup(click.Group):
         self.commands = {}
 
         # add commands on the fly based on conditions
-        if _is_project():
+        if _is_project(Path.cwd()):
             self.add_command(init)
             self.add_command(ui)
             # self.add_command(run) # TODO : IMPLEMENT THIS FUNCTION
@@ -78,26 +79,22 @@ def init(env, force, silent):
     mlflow_yml = "mlflow.yml"
     project_path = Path().cwd()
     project_metadata = _get_project_metadata(project_path)
-    context = load_context(project_path)
+    _add_src_to_path(project_metadata.source_dir, project_path)
+    session = KedroSession.create(
+        project_metadata.package_name, project_path=project_path
+    )
+    context = session.load_context()
     mlflow_yml_path = project_path / context.CONF_ROOT / env / mlflow_yml
 
     # mlflow.yml is just a static file,
     # but the name of the experiment is set to be the same as the project
-    mlflow_yml = "mlflow.yml"
-    write_jinja_template(
-        src=TEMPLATE_FOLDER_PATH / mlflow_yml,
-        is_cookiecutter=False,
-        dst=project_path / context.CONF_ROOT / "base" / mlflow_yml,
-        python_package=project_metadata.package_name,
-    )
-    if not silent:
+    if mlflow_yml_path.is_file() and not force:
         click.secho(
             click.style(
                 f"A 'mlflow.yml' already exists at '{mlflow_yml_path}' You can use the ``--force`` option to override it.",
                 fg="red",
             )
         )
-        return 1
     else:
         try:
             write_jinja_template(
@@ -113,7 +110,6 @@ def init(env, force, silent):
                     fg="red",
                 )
             )
-            return 1
         if not silent:
             click.secho(
                 click.style(
@@ -121,7 +117,6 @@ def init(env, force, silent):
                     fg="green",
                 )
             )
-        return 0
 
 
 @mlflow_commands.command()
@@ -136,11 +131,18 @@ def ui(env):
     """Opens the mlflow user interface with the
     project-specific settings of mlflow.yml. This interface
     enables to browse and compares runs.
-
     """
 
     project_path = Path().cwd()
-    context = load_context(project_path=project_path, env=env)
+    project_metadata = _get_project_metadata(project_path)
+    _add_src_to_path(project_metadata.source_dir, project_path)
+    session = KedroSession.create(
+        package_name=project_metadata.package_name,
+        project_path=project_path,
+        env=env,
+    )
+    context = session.load_context()
+
     # the context must contains the self.mlflow attribues with mlflow configuration
     mlflow_conf = get_mlflow_config(context)
 
