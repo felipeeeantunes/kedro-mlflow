@@ -105,7 +105,12 @@ def dummy_catalog():
 
 
 def test_pipeline_run_hook_getting_configs(
-    tmp_path, config_dir, monkeypatch, dummy_run_params, dummy_pipeline, dummy_catalog
+    tmp_path,
+    kedro_project,
+    monkeypatch,
+    dummy_run_params,
+    dummy_pipeline,
+    dummy_catalog,
 ):
 
     monkeypatch.chdir(tmp_path)
@@ -144,7 +149,7 @@ def test_node_hook_logging(
     dummy_catalog,
     dummy_pipeline,
     dummy_node,
-    config_dir,
+    kedro_project,
     flatten_dict_params,
     expected,
 ):
@@ -204,7 +209,7 @@ def test_node_hook_logging(
 )
 @pytest.mark.parametrize("strategy", ["fail", "truncate", "tag"])
 def test_node_hook_logging_below_limit_all_strategy(
-    tmp_path, config_dir, dummy_run_params, dummy_node, param_length, strategy
+    tmp_path, kedro_project, dummy_run_params, dummy_node, param_length, strategy
 ):
 
     # mocker.patch("kedro.framework.startup._is_project", return_value=True)
@@ -247,7 +252,7 @@ def test_node_hook_logging_below_limit_all_strategy(
     [MAX_PARAM_VAL_LENGTH + 20],
 )
 def test_node_hook_logging_above_limit_truncate_strategy(
-    tmp_path, config_dir, dummy_run_params, dummy_node, param_length
+    tmp_path, kedro_project, dummy_run_params, dummy_node, param_length
 ):
 
     # mocker.patch("kedro.framework.startup._is_project", return_value=True)
@@ -290,7 +295,7 @@ def test_node_hook_logging_above_limit_truncate_strategy(
     [MAX_PARAM_VAL_LENGTH + 20],
 )
 def test_node_hook_logging_above_limit_fail_strategy(
-    tmp_path, config_dir, dummy_run_params, dummy_node, param_length
+    tmp_path, kedro_project, dummy_run_params, dummy_node, param_length
 ):
 
     # mocker.patch("kedro.framework.startup._is_project", return_value=True)
@@ -339,7 +344,7 @@ def test_node_hook_logging_above_limit_fail_strategy(
     [MAX_PARAM_VAL_LENGTH + 20],
 )
 def test_node_hook_logging_above_limit_tag_strategy(
-    tmp_path, config_dir, dummy_run_params, dummy_node, param_length
+    tmp_path, kedro_project, dummy_run_params, dummy_node, param_length
 ):
 
     # mocker.patch("kedro.framework.startup._is_project", return_value=True)

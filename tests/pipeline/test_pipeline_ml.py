@@ -202,7 +202,7 @@ def pipeline_ml_with_parameters():
 
 
 @pytest.fixture
-def dummy_context(tmp_path, config_dir, mocker):
+def dummy_context(tmp_path, kedro_project, mocker):
     class DummyContext(KedroContext):
         project_name = "fake project"
         package_name = "fake_project"

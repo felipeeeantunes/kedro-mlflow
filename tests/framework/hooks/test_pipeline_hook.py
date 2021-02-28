@@ -308,7 +308,7 @@ def test_mlflow_pipeline_hook_with_different_pipeline_types(
     mocker,
     monkeypatch,
     tmp_path,
-    config_dir,
+    kedro_project,
     env_from_dict,
     pipeline_to_run,
     dummy_catalog,
@@ -384,7 +384,7 @@ def test_mlflow_pipeline_hook_with_copy_mode(
     mocker,
     monkeypatch,
     tmp_path,
-    config_dir,
+    kedro_project,
     dummy_pipeline_ml,
     dummy_catalog,
     dummy_run_params,
@@ -444,7 +444,7 @@ def test_mlflow_pipeline_hook_metrics_with_run_id(
     mocker,
     monkeypatch,
     tmp_path,
-    config_dir,
+    kedro_project,
     dummy_pipeline_ml,
     dummy_run_params,
     dummy_mlflow_conf,
@@ -520,7 +520,7 @@ def test_mlflow_pipeline_hook_metrics_with_run_id(
 def test_mlflow_pipeline_hook_save_pipeline_ml_with_parameters(
     mocker,
     monkeypatch,
-    config_dir,  # a fixture to be in a kedro project
+    kedro_project,  # a fixture to be in a kedro project
     dummy_mlflow_conf,  # a fixture to setup mlflow configuration
     tmp_path,
     pipeline_ml_with_parameters,
@@ -600,7 +600,7 @@ def test_mlflow_pipeline_hook_with_pipeline_ml_signature(
     mocker,
     monkeypatch,
     tmp_path,
-    config_dir,
+    kedro_project,
     env_from_dict,
     dummy_pipeline,
     dummy_catalog,
@@ -689,9 +689,9 @@ def test_generate_default_kedro_commands(default_value):
     assert _generate_kedro_command(**record_data) == expected
 
 
-def test_on_pipeline_error(tmp_path, config_dir, mocker):
+def test_on_pipeline_error(tmp_path, kedro_project, mocker):
 
-    # config_dir is a global fixture in conftest that emulates
+    # kedro_project is a global fixture in conftest that emulates
     #  the root of a Kedro project
 
     # Disable logging.config.dictConfig in KedroContext._setup_logging as

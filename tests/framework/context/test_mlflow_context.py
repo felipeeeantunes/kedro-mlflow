@@ -12,8 +12,8 @@ def _write_yaml(filepath, config):
     filepath.write_text(yaml_str)
 
 
-def test_get_mlflow_config(mocker, tmp_path, config_dir):
-    # config_with_base_mlflow_conf is a pytest.fixture in conftest
+def test_get_mlflow_config(mocker, tmp_path, kedro_project):
+    # kedro_project is a pytest.fixture in conftest
     mocker.patch("logging.config.dictConfig")
     mocker.patch("kedro.framework.startup._is_project", return_value=True)
 
@@ -54,7 +54,7 @@ def test_get_mlflow_config(mocker, tmp_path, config_dir):
     assert get_mlflow_config(context).to_dict() == expected
 
 
-def test_get_mlflow_config_in_uninitialized_project(mocker, tmp_path, config_dir):
+def test_get_mlflow_config_in_uninitialized_project(mocker, tmp_path, kedro_project):
     # config_with_base_mlflow_conf is a pytest.fixture in conftest
     mocker.patch("logging.config.dictConfig")
     mocker.patch("kedro_mlflow.utils._is_kedro_project", return_value=True)
@@ -66,7 +66,7 @@ def test_get_mlflow_config_in_uninitialized_project(mocker, tmp_path, config_dir
         get_mlflow_config(context)
 
 
-def test_mlflow_config_with_templated_config(mocker, tmp_path, config_dir):
+def test_mlflow_config_with_templated_config(mocker, tmp_path, kedro_project):
 
     _write_yaml(
         tmp_path / "conf" / "base" / "mlflow.yml",
