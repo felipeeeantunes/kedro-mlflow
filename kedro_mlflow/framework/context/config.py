@@ -4,6 +4,7 @@ from pathlib import Path, PurePath
 from typing import Any, Dict, Optional, Union
 
 import mlflow
+from kedro.framework.session.session import get_current_session
 from kedro.framework.startup import _is_project
 
 LOGGER = logging.getLogger(__name__)
@@ -72,10 +73,11 @@ class KedroMlflowConfig:
         )
         self.from_dict(configuration)
 
-    def setup(self, context):
+    def setup(self):
         """Setup all the mlflow configuration"""
 
-        self._export_credentials(context)
+        session = get_current_session()
+        self._export_credentials(session.load_context())
 
         # we set the configuration now: it takes priority
         # if it has already be set in export_credentials
